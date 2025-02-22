@@ -1,0 +1,603 @@
+openapi: 3.0.0
+info:
+  title: SLGMap API
+  description: API quản lý địa điểm với hệ thống phân quyền
+  version: 1.0.0
+  
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        full_name:
+          type: string
+        is_active:
+          type: boolean
+        roles:
+          type: array
+          items:
+            type: string
+            
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        business_type:
+          type: string
+        rate:
+          type: number
+        rate_count:
+          type: integer
+        phone_number:
+          type: string
+        address:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        status:
+          type: string
+        image_url:
+          type: string
+          
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Đăng ký tài khoản mới
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                full_name:
+                  type: string
+      responses:
+        '201':
+          description: Tạo tài khoản thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+          
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Đăng nhập
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Đăng nhập thành công, trả về JWT token
+        '401':
+          description: Sai thông tin đăng nhập
+          
+  /api/users/me:
+    get:
+      tags:
+        - User
+      summary: Xem thông tin cá nhân
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Thông tin người dùng
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+                
+    put:
+      tags:
+        - User
+      summary: Cập nhật thông tin cá nhân
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                full_name:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Cập nhật thành công
+          
+  /api/users:
+    get:
+      tags:
+        - User Management
+      summary: Xem danh sách người dùng
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền MANAGE_USERS
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Danh sách người dùng
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Không có quyền truy cập
+          
+  /api/users/{id}:
+    put:
+      tags:
+        - User Management
+      summary: Cập nhật thông tin người dùng
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền MANAGE_USERS
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Cập nhật thành công
+        '403':
+          description: Không có quyền truy cập
+          
+    delete:
+      tags:
+        - User Management
+      summary: Xóa người dùng
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền MANAGE_USERS
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Xóa thành công
+        '403':
+          description: Không có quyền truy cập
+          
+  /api/locations:
+    get:
+      tags:
+        - Location
+      summary: Tìm kiếm địa điểm
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền VIEW_LOCATIONS
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: business_type
+          schema:
+            type: string
+        - in: query
+          name: district
+          schema:
+            type: string
+        - in: query
+          name: min_rate
+          schema:
+            type: number
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [name, rate, created_at]
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Danh sách địa điểm
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+                  
+    post:
+      tags:
+        - Location
+      summary: Thêm địa điểm mới
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền CREATE_LOCATION
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        '201':
+          description: Tạo địa điểm thành công
+        '403':
+          description: Không có quyền truy cập
+          
+  /api/locations/filter:
+    get:
+      tags:
+        - Location
+      summary: Lọc địa điểm theo nhiều tiêu chí
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: business_type
+          schema:
+            type: string
+          description: Loại hình kinh doanh
+        - in: query
+          name: district
+          schema:
+            type: string
+          description: Quận/Huyện
+        - in: query
+          name: min_rate
+          schema:
+            type: number
+          description: Đánh giá tối thiểu
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Tìm kiếm theo tên hoặc địa chỉ
+        - in: query
+          name: max_distance
+          schema:
+            type: number
+          description: Khoảng cách tối đa (km)
+        - in: query
+          name: latitude
+          schema:
+            type: number
+          description: Vĩ độ tham chiếu
+        - in: query
+          name: longitude
+          schema:
+            type: number
+          description: Kinh độ tham chiếu
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Trang
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+          description: Số lượng kết quả mỗi trang
+      responses:
+        '200':
+          description: Danh sách địa điểm thỏa mãn điều kiện
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  locations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+                  total:
+                    type: integer
+                  pages:
+                    type: integer
+                  current_page:
+                    type: integer
+        '401':
+          description: Chưa đăng nhập
+        '403':
+          description: Không có quyền truy cập
+          
+  /api/locations/{id}:
+    get:
+      tags:
+        - Location
+      summary: Xem chi tiết địa điểm
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền VIEW_LOCATIONS
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Thông tin địa điểm
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+                
+    put:
+      tags:
+        - Location
+      summary: Cập nhật địa điểm
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền EDIT_LOCATION
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        '200':
+          description: Cập nhật thành công
+        '403':
+          description: Không có quyền truy cập
+          
+    delete:
+      tags:
+        - Location
+      summary: Xóa địa điểm
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền DELETE_LOCATION
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Xóa thành công
+        '403':
+          description: Không có quyền truy cập
+          
+  /api/locations/export:
+    post:
+      tags:
+        - Location
+      summary: Xuất dữ liệu địa điểm
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền EXPORT_ROUTE (VIP)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                format:
+                  type: string
+                  enum: [csv]
+                filters:
+                  type: object
+                  properties:
+                    business_type:
+                      type: string
+                    district:
+                      type: string
+      responses:
+        '200':
+          description: File CSV
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Không có quyền truy cập
+          
+  /api/roles:
+    get:
+      tags:
+        - Role Management
+      summary: Xem danh sách vai trò
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền MANAGE_USERS
+      responses:
+        '200':
+          description: Danh sách vai trò
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+                  
+    post:
+      tags:
+        - Role Management
+      summary: Tạo vai trò mới
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền MANAGE_USERS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        '201':
+          description: Tạo vai trò thành công
+        '403':
+          description: Không có quyền truy cập
+          
+  /api/roles/{id}:
+    put:
+      tags:
+        - Role Management
+      summary: Cập nhật vai trò
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền MANAGE_USERS
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        '200':
+          description: Cập nhật thành công
+        '403':
+          description: Không có quyền truy cập
+          
+    delete:
+      tags:
+        - Role Management
+      summary: Xóa vai trò
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền MANAGE_USERS
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Xóa thành công
+        '403':
+          description: Không có quyền truy cập
+          
+  /api/users/{user_id}/roles:
+    put:
+      tags:
+        - Role Management
+      summary: Gán vai trò cho người dùng
+      security:
+        - BearerAuth: []
+      description: Yêu cầu quyền MANAGE_USERS
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Cập nhật vai trò thành công
+        '403':
+          description: Không có quyền truy cập

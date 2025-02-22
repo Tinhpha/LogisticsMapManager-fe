@@ -1,0 +1,83 @@
+# Logistics Manager - Todo List
+
+## 1. Thiết lập Dự án Cơ bản [DONE]
+- [x] Khởi tạo dự án React với TypeScript
+- [x] Cấu hình Vite
+- [x] Thiết lập cấu trúc thư mục cơ bản
+- [x] Tạo layout cơ bản
+
+## 2. Phát triển Components [IN PROGRESS]
+### 2.1. Header Component [IN PROGRESS]
+- [x] Logo và navigation
+- [ ] Nút "Add Info"
+- [x] Responsive design
+- [x] Hiệu ứng hover và active states
+
+### 2.2. Search Component [IN PROGRESS]
+- [x] Bộ lọc danh mục (Warehouse, Airport, Seaport, Depot, Company)
+- [x] Ô tìm kiếm địa điểm
+- [x] Danh sách kết quả
+- [x] Hiển thị thông tin chi tiết (diện tích, giá, chất lượng, xếp hạng)
+- [ ] Thêm chức năng filter nâng cao
+- [ ] Thêm chức năng sort
+
+### 2.3. Map Component [IN PROGRESS]
+- [x] Tích hợp OpenStreetMap
+- [x] Hiển thị markers cho các địa điểm
+- [x] Custom SVG markers cho từng loại địa điểm
+- [x] Popup khi click vào marker
+- [x] Hiển thị thông tin chi tiết trong popup (diện tích, giá, chất lượng, xếp hạng)
+- [ ] Thêm SVG mặc định cho các loại địa điểm còn lại
+- [ ] Thêm clustering cho markers khi zoom out
+- [ ] Thêm chức năng tìm đường đi giữa các điểm
+- [ ] Thêm chức năng vẽ polygon để tìm kiếm trong khu vực
+
+## 3. Quản lý Dữ liệu [IN PROGRESS]
+- [x] Tạo interfaces cho các kiểu dữ liệu
+- [x] Tạo mock data cho testing
+- [x] Thiết lập state management với React Query
+- [x] Xử lý logic lọc và tìm kiếm
+- [ ] Kết nối với backend API
+- [ ] Thêm caching và optimistic updates
+
+## 4. Tính năng Tương tác [IN PROGRESS]
+- [x] Lọc theo danh mục
+- [x] Tìm kiếm theo vị trí
+- [x] Hiển thị chi tiết địa điểm
+- [x] Đồng bộ giữa map và danh sách
+- [ ] Thêm địa điểm mới
+- [ ] Chỉnh sửa thông tin địa điểm
+- [ ] Xóa địa điểm
+- [ ] Thêm chức năng bookmark địa điểm yêu thích
+
+## 5. Styling và UI/UX [IN PROGRESS]
+- [x] Thiết kế responsive
+- [x] Animations và transitions cơ bản
+- [x] Loading states
+- [x] Error handling
+- [x] Empty states
+- [ ] Thêm dark mode
+- [ ] Tối ưu accessibility
+- [ ] Thêm keyboard shortcuts
+- [ ] Cải thiện performance
+
+## 6. Testing [TODO]
+- [ ] Unit tests cho components
+- [ ] Integration tests
+- [ ] Performance testing
+- [ ] End-to-end tests
+- [ ] Visual regression tests
+
+## 7. Deployment [TODO]
+- [ ] Setup CI/CD pipeline
+- [ ] Cấu hình production build
+- [ ] Tối ưu bundle size
+- [ ] Cấu hình CDN
+- [ ] Monitoring và analytics
+
+## 8. Documentation [TODO]
+- [ ] API documentation
+- [ ] Component documentation
+- [ ] User guide
+- [ ] Development guide
+- [ ] Deployment guide
