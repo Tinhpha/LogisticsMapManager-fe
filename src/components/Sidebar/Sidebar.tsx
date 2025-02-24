@@ -84,16 +84,35 @@ const Sidebar: React.FC<SidebarProps> = ({
         page: 1,
         per_page: 5
       });
-      console.log('Search results:', result); // Debug log
+      console.log('Search results:', result);
       
       // Ensure we have an array of locations
       const locations = Array.isArray(result.filteredLocations) ? result.filteredLocations : [];
+      
+      // Nếu không có kết quả, thông báo cho người dùng
+      if (locations.length === 0) {
+        console.log('No locations found for search:', value);
+        // Reset selected location nếu đang tìm kiếm
+        if (isStart) {
+          setSelectedStartLocation(null);
+        } else {
+          setSelectedEndLocation(null);
+        }
+      }
+      
+      // Cập nhật danh sách locations
       onLocationsUpdate(locations);
       
       // Update search query
       onSearch(value);
     } catch (error) {
       console.error('Search error:', error);
+      // Reset selected location trong trường hợp lỗi
+      if (isStart) {
+        setSelectedStartLocation(null);
+      } else {
+        setSelectedEndLocation(null);
+      }
     } finally {
       setIsSearching(false);
     }
@@ -120,11 +139,19 @@ const Sidebar: React.FC<SidebarProps> = ({
     setSelectedLocationId(location.id);
     onSelectLocation(location);
 
+    // Reset route info khi chọn location mới
+    setRouteInfo(null);
+    if (routingService) {
+      routingService.clearRoute();
+    }
+
     // Update start/end location based on selection mode
     if (isSelectingStart) {
       console.log('📍 Setting start location:', location.name);
       setStartLocation(location.name);
       setSelectedStartLocation(location);
+      // Tự động chuyển sang chọn điểm đến
+      setIsSelectingStart(false);
     } else {
       console.log('🏁 Setting end location:', location.name);
       setEndLocation(location.name);
@@ -263,13 +290,17 @@ const Sidebar: React.FC<SidebarProps> = ({
           address: '',
           business_type: 'Current',
           company: '',
+          latitude,
+          longitude
         };
 
-        // Cập nhật vị trí vào input đang được focus
+        // Cập nhật cả input text và selected location
         if (isSelectingStart) {
           setStartLocation(currentLocation.name);
+          setSelectedStartLocation(currentLocation);
         } else {
           setEndLocation(currentLocation.name);
+          setSelectedEndLocation(currentLocation);
         }
       },
       (error) => {
@@ -286,17 +317,19 @@ const Sidebar: React.FC<SidebarProps> = ({
   const handleClearInput = (isStart: boolean) => {
     if (isStart) {
       setStartLocation('');
+      setSelectedStartLocation(null);
     } else {
       setEndLocation('');
+      setSelectedEndLocation(null);
     }
     
     // Reset route info khi xóa bất kỳ location nào
-    // setRouteInfo(null);
+    setRouteInfo(null);
     
     // Xóa route trên map
-    // if (routingService) {
-    //   routingService.clearRoute();
-    // }
+    if (routingService) {
+      routingService.clearRoute();
+    }
   };
 
   const handleSendRouteInfo = () => {

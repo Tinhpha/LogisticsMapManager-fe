@@ -204,8 +204,8 @@ class LocationService {
 
             // Update pagination info
             this.currentPage = response.data.current_page || 1;
-            this.totalPages = response.data.total_pages || 1;
-            this.totalItems = response.data.total_items || 0;
+            this.totalPages = response.data.last_page || 1;
+            this.totalItems = response.data.total;
 
             return response.data.locations;
         } catch (error) {
